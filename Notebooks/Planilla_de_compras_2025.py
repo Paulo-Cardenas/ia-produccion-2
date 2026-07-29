@@ -3,7 +3,7 @@ import pandas as pd
 import logging
 from io import StringIO
 import datetime
-
+#hello
 # 1. Configurar el sistema de logs para capturar eventos en un buffer de texto
 log_buffer = StringIO()
 logging.basicConfig(
