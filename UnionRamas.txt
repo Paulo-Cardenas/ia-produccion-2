@@ -1,0 +1,21 @@
+Explicacion para unir ramas
+
+antes de ... Por si no sabemos en que rama estamos podemos ocupar:
+git branch 
+
+--- en mi rama 
+git pull (para tener la rama al dia)
+git pull https...link..GitHub.. (en caso de que nos tire error)
+*editar archivo*
+git add . (para agregar mis cambios)
+git status (para ver en que cambios hay)
+git commit -m "el -m es para poner un mensaje" (comiteo en mi rama)
+git push  (para llevarlo al entorno virtual aun dentro de mi rama)
+git switch main (cambia a mi rama main)
+git pull (para tener la rama main al dia)
+git merge nombredelarama-por-fucionar (aqui nosotros tenemos el main en nuestro area de trabajo)
+git push origin main (para pasar los cambios a la rama virtual)
+    -> si no funciona con origin podemos ocupar git push https..GitHub..link 
+
+
+Dudas,consultas, felicitaciones -> +569 71501200(matilda)
