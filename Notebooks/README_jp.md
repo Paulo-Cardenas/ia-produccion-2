@@ -33,3 +33,13 @@ Achivo juan_poblete_id_proyecto_pc25.ipynb
 Validacion Nombres y cantidades de columnas (conservar o eliminar)
 Transformacion titulos columnas a minusculas y sin espacios
 Filtra ID Propyecto PC25
+
+
+
+Ejecuta en terminal
+```bash
+streamlit run jp.py   # visualiza cambios codigo_year _codigo PC25
+                      # Carga archivo plan_de_compras_2025.xlsx
+                      # columna id proyecto solo muestra PC25
+                      # columna telefono responsable numeros 9 digitos
+                      # columna anexo muestra solo los ultimos 4 digitos correspondientes al anexo de cada numero de telefono
