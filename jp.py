@@ -69,7 +69,7 @@ if archivo is not None:
     # TRANSFORMACIONES
     ##############################################################
     progress_bar.progress(25, "Transformaciones...")
-    codigo_proceso = "PC25"      #modificacion filtro id proyecto_PC25  punto 6 JP-
+    codigo_proceso = "PC25"      # Modificacion año 2025 filtro id proyecto_PC25  punto 6 JP-
     # 1
     df = df[
         df["id proyecto"]
@@ -82,7 +82,7 @@ if archivo is not None:
     df["anexo"] = (
         df["teléfono responsable"]
         .astype(str)
-        .str.replace("-", "", regex=False) # ingreso numeros en columna anexo punto 4 JP-
+        .str.replace("-", "", regex=False) # ingreso numeros en columna anexo_punto 4 JP-
         .str.strip()
         .str[-4:]
 
@@ -97,8 +97,7 @@ if archivo is not None:
         .astype(str)
         .str.replace("-", "", regex=False)
         .str.replace(" ", "", regex=False)
-    .str.strip()       # limpieza numeros de telefono punto 4 JP-                    
-    )
+    .str.strip()       # limpieza numeros de telefono _punto 4 JP-
 
     df["teléfono responsable"] = df["teléfono responsable"].str.slice(-9)
     df["teléfono responsable"] = df["teléfono responsable"].str.zfill(9)
