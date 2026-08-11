@@ -98,7 +98,7 @@ if archivo is not None:
         .str.replace("-", "", regex=False)
         .str.replace(" ", "", regex=False)
     .str.strip()       # limpieza numeros de telefono _punto 4 JP-
-
+    )
     df["teléfono responsable"] = df["teléfono responsable"].str.slice(-9)
     df["teléfono responsable"] = df["teléfono responsable"].str.zfill(9)
     df["teléfono responsable"] = df["teléfono responsable"].apply(
