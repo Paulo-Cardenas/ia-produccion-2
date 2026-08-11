@@ -203,7 +203,12 @@ fig_unidades.update_layout(
     plot_bgcolor="white", paper_bgcolor="white",
     font_color=INK_PRIMARIO,
     xaxis=dict(gridcolor=GRID, tickfont_color=INK_PRIMARIO, title_font_color=INK_PRIMARIO),
-    yaxis=dict(gridcolor=GRID, tickfont_color=INK_PRIMARIO, title_font_color=INK_PRIMARIO),
+    yaxis=dict(
+        gridcolor=GRID, tickfont_color=INK_PRIMARIO, title_font_color=INK_PRIMARIO,
+        automargin=True,  # deja que Plotly reserve el espacio a la izquierda que necesiten los nombres largos
+    ),
+    margin=dict(l=10),
+    height=450,
 )
 st.plotly_chart(fig_unidades, use_container_width=True, theme=None)
 
