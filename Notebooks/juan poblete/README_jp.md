@@ -41,5 +41,5 @@ Ejecuta en terminal
 streamlit run jp.py   # visualiza cambios codigo_year _codigo PC25
                       # Carga archivo plan_de_compras_2025.xlsx
                       # columna id proyecto solo muestra PC25
-                      # columna telefono responsable numeros 9 digitos
-                      # columna anexo muestra solo los ultimos 4 digitos correspondientes al anexo de cada numero de telefono
+                      # Columna telefono responsable numeros 9 digitos
+                      # Muestra en columna anexo muestra solo los ultimos 4 digitos correspondientes al anexo de cada numero de telefono
