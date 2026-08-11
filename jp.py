@@ -35,9 +35,9 @@ archivo = st.sidebar.file_uploader(
 
 codigo_year = st.sidebar.selectbox(
     "codigo_year",
+
     [2025]           # modificacion codigo proceso_PC252 punto 6 JP
-    # [2022, 2023, 2024, 2025],
-    # index=3
+
 )
 
 codigo_proceso = f"PC{str(codigo_year)[-2:]}"
@@ -69,7 +69,8 @@ if archivo is not None:
     # TRANSFORMACIONES
     ##############################################################
     progress_bar.progress(25, "Transformaciones...")
-    codigo_proceso = "PC25"      # modificacion filtro id proyecto_PC25  punto 6 JP-
+
+    codigo_proceso = "PC25"  #modificacion filtro id proyecto_PC25  punto 6 JP.
     # 1
     df = df[
         df["id proyecto"]
@@ -107,7 +108,7 @@ if archivo is not None:
     )
 #--------------------------------------------------
 
-    # mostrar barra de progreso con un mensaje y luego desaparecer
+
     progress_bar.progress(60, "Modificando nombre de proyecto...")
 
 
