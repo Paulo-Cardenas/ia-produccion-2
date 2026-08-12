@@ -1,4 +1,5 @@
 from pathlib import Path
+import io
 
 import pandas as pd
 import streamlit as st
@@ -11,25 +12,57 @@ EXCEL_PATH = BASE_DIR / "plan_de_compras_2025.xlsx"
 st.title("📊 Resumen del proyecto de compras")
 st.caption("Dashboard generado con Streamlit a partir de la planilla del proyecto")
 
-if not EXCEL_PATH.exists():
-    st.error(f"No se encontró el archivo de datos: {EXCEL_PATH}")
-    st.stop()
 
 @st.cache_data(show_spinner=False)
-def load_data(path: Path) -> pd.DataFrame:
-    df = pd.read_excel(path)
+def load_data(path_or_buffer) -> pd.DataFrame:
+    df = pd.read_excel(path_or_buffer)
     df.columns = [col.strip() for col in df.columns]
 
-    for col in ["Monto Total Ítem Año 2025", "Monto Unitario Ítem", "Cantidad Productos", "Cantidad de Ítems"]:
+    # Ensure numeric columns exist and are numeric
+    numeric_cols = [
+        "Monto Total Ítem Año 2025",
+        "Monto Unitario Ítem",
+        "Cantidad Productos",
+        "Cantidad de Ítems",
+    ]
+    for col in numeric_cols:
         if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce")
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
+        else:
+            df[col] = 0
 
-    df["Estado Proyecto"] = df["Estado Proyecto"].fillna("Sin dato")
-    df["Tipo Proyecto"] = df["Tipo Proyecto"].fillna("Sin dato")
+    # Ensure categorical columns exist
+    for col in ["Estado Proyecto", "Tipo Proyecto", "Nombre Proyecto"]:
+        if col not in df.columns:
+            df[col] = "Sin dato"
+        else:
+            df[col] = df[col].fillna("Sin dato")
+
+    # ID Proyecto should exist for counts
+    if "ID Proyecto" not in df.columns:
+        df["ID Proyecto"] = df.index
+
     return df
 
 
-df = load_data(EXCEL_PATH)
+def get_dataframe() -> pd.DataFrame:
+    # Prefer local file, but allow upload as fallback
+    if EXCEL_PATH.exists():
+        try:
+            return load_data(EXCEL_PATH)
+        except Exception as e:
+            st.warning(f"Error leyendo {EXCEL_PATH}: {e}")
+
+    uploaded = st.sidebar.file_uploader("Sube el archivo Excel (si no existe local)", type=["xlsx", "xls"])
+    if uploaded is None:
+        st.error(f"No se encontró el archivo de datos: {EXCEL_PATH}. Sube el archivo en la barra lateral.")
+        st.stop()
+
+    # pd.read_excel accepts file-like objects
+    return load_data(io.BytesIO(uploaded.read()))
+
+
+df = get_dataframe()
 
 st.sidebar.header("Filtros")
 selected_states = st.sidebar.multiselect(
@@ -50,10 +83,21 @@ if selected_types:
     filtered_df = filtered_df[filtered_df["Tipo Proyecto"].isin(selected_types)]
 
 col1, col2, col3, col4 = st.columns(4)
-col1.metric("Proyectos", int(filtered_df["ID Proyecto"].nunique()))
-col2.metric("Monto total", f"${filtered_df['Monto Total Ítem Año 2025'].sum():,.0f}")
-col3.metric("Ítems", int(filtered_df["Cantidad de Ítems"].sum()))
-col4.metric("Publicados", int(filtered_df[filtered_df["Estado Proyecto"].str.lower() == "publicado"]["ID Proyecto"].nunique()))
+try:
+    proyectos_count = int(filtered_df["ID Proyecto"].nunique())
+except Exception:
+    proyectos_count = int(filtered_df.shape[0])
+
+monto_total = float(filtered_df["Monto Total Ítem Año 2025"].sum())
+items_total = int(filtered_df["Cantidad de Ítems"].sum())
+publicados_count = int(
+    filtered_df[filtered_df["Estado Proyecto"].str.lower().fillna("") == "publicado"]["ID Proyecto"].nunique()
+)
+
+col1.metric("Proyectos", proyectos_count)
+col2.metric("Monto total", f"${monto_total:,.0f}")
+col3.metric("Ítems", items_total)
+col4.metric("Publicados", publicados_count)
 
 st.subheader("1. Proyectos por estado")
 state_summary = (
@@ -80,4 +124,11 @@ top_projects = (
 )
 st.dataframe(top_projects, use_container_width=True)
 
-st.caption("Archivos usados: plan_de_compras_2025.xlsx")
+# Descargar CSV de los datos filtrados
+csv = filtered_df.to_csv(index=False, encoding="utf-8")
+st.sidebar.download_button("Descargar CSV filtrado", data=csv, file_name="plan_de_compras_filtrado.csv", mime="text/csv")
+
+if st.checkbox("Mostrar datos crudos"):
+    st.dataframe(filtered_df, use_container_width=True)
+
+st.caption(f"Fuente: {EXCEL_PATH.name} (local o subido)")
