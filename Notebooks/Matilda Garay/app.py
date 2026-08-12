@@ -1,11 +1,15 @@
+# --- Importaciones ---
 from pathlib import Path
 import io
 
+# Librerías de datos y UI
 import pandas as pd
 import streamlit as st
 
+# --- Configuración de Streamlit ---
 st.set_page_config(page_title="Resumen de compras", page_icon="📊", layout="wide")
 
+# --- Rutas y constantes ---
 BASE_DIR = Path(__file__).resolve().parents[2]
 EXCEL_PATH = BASE_DIR / "plan_de_compras_2025.xlsx"
 
@@ -15,6 +19,7 @@ st.caption("Dashboard generado con Streamlit a partir de la planilla del proyect
 
 @st.cache_data(show_spinner=False)
 def load_data(path_or_buffer) -> pd.DataFrame:
+    # --- Carga y limpieza de datos ---
     df = pd.read_excel(path_or_buffer)
     df.columns = [col.strip() for col in df.columns]
 
@@ -46,6 +51,7 @@ def load_data(path_or_buffer) -> pd.DataFrame:
 
 
 def get_dataframe() -> pd.DataFrame:
+    # --- Obtención del dataframe (local o subida) ---
     # Prefer local file, but allow upload as fallback
     if EXCEL_PATH.exists():
         try:
@@ -64,6 +70,7 @@ def get_dataframe() -> pd.DataFrame:
 
 df = get_dataframe()
 
+# --- Filtros ---
 st.sidebar.header("Filtros")
 selected_states = st.sidebar.multiselect(
     "Estado del proyecto",
@@ -83,6 +90,7 @@ if selected_types:
     filtered_df = filtered_df[filtered_df["Tipo Proyecto"].isin(selected_types)]
 
 col1, col2, col3, col4 = st.columns(4)
+# --- Métricas principales ---
 try:
     proyectos_count = int(filtered_df["ID Proyecto"].nunique())
 except Exception:
@@ -100,18 +108,21 @@ col3.metric("Ítems", items_total)
 col4.metric("Publicados", publicados_count)
 
 st.subheader("1. Proyectos por estado")
+# --- Visualización: proyectos por estado ---
 state_summary = (
     filtered_df.groupby("Estado Proyecto")["ID Proyecto"].nunique().sort_values(ascending=False)
 )
 st.bar_chart(state_summary)
 
 st.subheader("2. Monto por tipo de proyecto")
+# --- Visualización: monto por tipo ---
 type_summary = (
     filtered_df.groupby("Tipo Proyecto")["Monto Total Ítem Año 2025"].sum().sort_values(ascending=False)
 )
 st.bar_chart(type_summary)
 
 st.subheader("3. Top 10 proyectos por monto")
+# --- Tabla: top proyectos ---
 top_projects = (
     filtered_df.groupby("Nombre Proyecto", as_index=False)
     .agg(
@@ -124,11 +135,14 @@ top_projects = (
 )
 st.dataframe(top_projects, use_container_width=True)
 
+# --- Exportar datos filtrados ---
 # Descargar CSV de los datos filtrados
 csv = filtered_df.to_csv(index=False, encoding="utf-8")
 st.sidebar.download_button("Descargar CSV filtrado", data=csv, file_name="plan_de_compras_filtrado.csv", mime="text/csv")
 
+# --- Mostrar datos crudos (opcional) ---
 if st.checkbox("Mostrar datos crudos"):
     st.dataframe(filtered_df, use_container_width=True)
 
+# --- Pie / Fuente ---
 st.caption(f"Fuente: {EXCEL_PATH.name} (local o subido)")
